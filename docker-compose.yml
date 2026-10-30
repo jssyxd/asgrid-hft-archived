@@ -1,0 +1,37 @@
+services:
+  strat_012_as_grid:
+    image: nautilus_cluster_base:latest
+    container_name: nautilus_vps_003_as_grid
+    restart: unless-stopped
+    command: ["python", "-u", "/app/services/03_as_grid/run_live.py"]
+    network_mode: host
+    environment:
+      - OKX_API_KEY=776e25a5-be71-4c71-a183-ac8859789cfd
+      - OKX_API_SECRET=E96F1B17DBD38ADFBD4C719E3231C124
+      - OKX_API_PASSPHRASE=Auto111.
+      - OKX_SIMULATED_TRADING=0
+    volumes:
+      - ./logs:/app/logs
+      - ./services/03_as_grid/run_live.py:/app/services/03_as_grid/run_live.py
+      - ./gateway_okx_client.py:/app/gateway_okx_client.py
+      - ./checkpoints:/app/checkpoints:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.60'
+          memory: 300M
+
+  watchdog_sentinel:
+    image: nautilus_cluster_base:latest
+    container_name: nautilus_vps_watchdog
+    restart: unless-stopped
+    command: ["python", "-u", "/app/watchdog_trader_sentinel.py"]
+    network_mode: host
+    volumes:
+      - ./logs:/app/logs
+      - ./gateway_okx_client.py:/app/gateway_okx_client.py
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 100M
